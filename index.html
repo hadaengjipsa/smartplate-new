@@ -4,42 +4,20 @@
 <meta charset="UTF-8">
 <title>노인 스마트 식판</title>
 
-<!-- PWA manifest -->
 <link rel="manifest" href="manifest.json">
 
 <style>
-body {
-    font-family: "맑은 고딕";
-    font-size: 26px;
-    padding: 20px;
-}
-select, input {
-    font-size: 26px;
-    padding: 8px;
-    width: 95%;
-}
-button {
-    font-size: 30px;
-    padding: 15px;
-    margin-top: 20px;
-    width: 100%;
-    background: #4CAF50;
-    color: white;
-    border: none;
-}
-.food-block {
-    margin-bottom: 40px;
-    border-bottom: 3px solid #ddd;
-    padding-bottom: 30px;
-}
-img {
-    width: 220px;
-    border-radius: 12px;
-    margin: 10px 0;
-}
+body { font-family: "맑은 고딕"; font-size: 26px; padding: 20px; }
+select, input { font-size: 26px; padding: 8px; width: 95%; }
+button { font-size: 30px; padding: 15px; margin-top: 20px; width: 100%;
+    background: #4CAF50; color: white; border: none; }
+.food-block { margin-bottom: 40px; border-bottom: 3px solid #ddd; padding-bottom: 30px; }
+img { width: 220px; border-radius: 12px; margin: 10px 0; }
 .good{background:#b7ffb7;padding:10px;}
 .low{background:#fff59b;padding:10px;}
 .bad{background:#ff9a9a;padding:10px;}
+.section-title{margin-top:40px; font-size:32px; font-weight:bold;}
+.save-box{margin-top:30px;}
 </style>
 </head>
 
@@ -47,39 +25,75 @@ img {
 
 <h1>노인 스마트 식판</h1>
 
+<!-- ========================= -->
+<!-- 1) 성별 선택 -->
+<!-- ========================= -->
+<h2 class="section-title">성별 선택</h2>
+<select id="gender">
+    <option value="">선택하세요</option>
+    <option value="male">남성</option>
+    <option value="female">여성</option>
+</select>
+
+<!-- ========================= -->
+<!-- 2) 식사 시간 선택 -->
+<!-- ========================= -->
+<h2 class="section-title">식사 시간 선택</h2>
+<select id="mealTime">
+    <option value="">선택하세요</option>
+    <option value="breakfast">아침</option>
+    <option value="lunch">점심</option>
+    <option value="dinner">저녁</option>
+</select>
+
+<!-- ========================= -->
+<!-- 3) 음식 선택 -->
+<!-- ========================= -->
+<h2 class="section-title">음식 선택</h2>
 <div id="foods"></div>
+
 <button onclick="calculateMeal()">전체 영양소 계산하기</button>
 
 <div id="totalResult"></div>
 
+<!-- 저장 기능 -->
+<div class="save-box">
+    <button style="background:#0066ff" onclick="saveResult()">저장하기</button>
+    <button style="background:#888" onclick="showSaved()">저장 기록 보기</button>
+</div>
 
-<!-- ◆ 1. FOOD DATA -->
+<div id="savedList"></div>
+
+<!-- ========================= -->
+<!-- 4) FOOD DATA -->
+<!-- ========================= -->
 <script>
 const foodDB = {
-"흰쌀밥":  {img:"images/흰쌀밥.jpg", k:1.46,c:0.317,p:0.025,f:0.003,n:0.01},
-"잡곡밥":  {img:"images/잡곡밥.jpg", k:1.49,c:0.32,p:0.03,f:0.01,n:0.01},
-"보리밥":  {img:"images/보리밥.jpg", k:1.40,c:0.33,p:0.035,f:0.01,n:0.01},
-"닭죽":    {img:"images/닭죽.jpg", k:0.75,c:0.12,p:0.04,f:0.01,n:1.5},
-"흑미밥":  {img:"images/흑미밥.jpg", k:1.45,c:0.315,p:0.03,f:0.01,n:0.01},
-"귀리밥":  {img:"images/귀리밥.jpg", k:1.50,c:0.30,p:0.04,f:0.02,n:0.01},
+"흰쌀밥":{img:"images/흰쌀밥.jpg",k:1.46,c:0.317,p:0.025,f:0.003,n:0.01},
+"잡곡밥":{img:"images/잡곡밥.jpg",k:1.49,c:0.32,p:0.03,f:0.01,n:0.01},
+"보리밥":{img:"images/보리밥.jpg",k:1.40,c:0.33,p:0.035,f:0.01,n:0.01},
+"닭죽":{img:"images/닭죽.jpg",k:0.75,c:0.12,p:0.04,f:0.01,n:1.5},
+"흑미밥":{img:"images/흑미밥.jpg",k:1.45,c:0.315,p:0.03,f:0.01,n:0.01},
+"귀리밥":{img:"images/귀리밥.jpg",k:1.50,c:0.30,p:0.04,f:0.02,n:0.01},
 
-"들깨미역국": {img:"images/들깨미역국.jpg", k:0.21,c:0.01,p:0.01,f:0.11,n:2},
-"콩나물국":   {img:"images/콩나물국.jpg", k:0.16,c:0.05,p:0.03,f:0.005,n:2},
-"소고기무국": {img:"images/소고기무국.jpg", k:0.30,c:0.05,p:0.14,f:0.04,n:3},
-"김치찌개":   {img:"images/김치찌개.jpg", k:0.38,c:0.03,p:0.018,f:0.03,n:6},
-"된장찌개":   {img:"images/된장찌개.jpg", k:0.33,c:0.02,p:0.02,f:0.02,n:7},
+"들깨미역국":{img:"images/들깨미역국.jpg",k:0.21,c:0.01,p:0.01,f:0.11,n:2},
+"콩나물국":{img:"images/콩나물국.jpg",k:0.16,c:0.05,p:0.03,f:0.005,n:2},
+"소고기무국":{img:"images/소고기무국.jpg",k:0.30,c:0.05,p:0.14,f:0.04,n:3},
+"김치찌개":{img:"images/김치찌개.jpg",k:0.38,c:0.03,p:0.018,f:0.03,n:6},
+"된장찌개":{img:"images/된장찌개.jpg",k:0.33,c:0.02,p:0.02,f:0.02,n:7},
 
-"계란찜":     {img:"images/계란찜.jpg", k:1.42,c:0.021,p:0.10,f:0.101,n:3},
-"멸치볶음":   {img:"images/멸치볶음.jpg", k:1.73,c:0.009,p:0.186,f:0.102,n:4.5},
-"애호박볶음": {img:"images/애호박볶음.jpg", k:1.42,c:0.1,p:0.03,f:0.1,n:2},
-"시금치나물": {img:"images/시금치나물.jpg", k:0.68,c:0.073,p:0.032,f:0.036,n:2},
-"고등어조림": {img:"images/고등어조림.jpg", k:1.41,c:0.041,p:0.113,f:0.088,n:4},
-"백김치":     {img:"images/백김치.jpg", k:0.22,c:0.048,p:0.012,f:0.002,n:4.5}
+"계란찜":{img:"images/계란찜.jpg",k:1.42,c:0.021,p:0.10,f:0.101,n:3},
+"멸치볶음":{img:"images/멸치볶음.jpg",k:1.73,c:0.009,p:0.186,f:0.102,n:4.5},
+"애호박볶음":{img:"images/애호박볶음.jpg",k:1.42,c:0.10,p:0.03,f:0.10,n:2},
+"시금치나물":{img:"images/시금치나물.jpg",k:0.68,c:0.073,p:0.032,f:0.036,n:2},
+"고등어조림":{img:"images/고등어조림.jpg",k:1.41,c:0.041,p:0.113,f:0.088,n:4},
+"백김치":{img:"images/백김치.jpg",k:0.22,c:0.048,p:0.012,f:0.002,n:4.5}
 };
 </script>
 
-
-<!-- ◆ 2. MAIN APP LOGIC -->
+<!-- ========================= -->
+<!-- 5) MAIN LOGIC -->
+<!-- ========================= -->
 <script>
 const foodNames = ["밥", "국", "반찬1", "반찬2", "반찬3", "반찬4"];
 let foodsBox = document.getElementById("foods");
@@ -87,19 +101,17 @@ let foodsBox = document.getElementById("foods");
 foodsBox.innerHTML = foodNames.map((label, i)=>`
 <div class="food-block">
     <h2>${label}</h2>
-
     <select id="food${i}" onchange="showImage(${i})">
         <option value="">선택하세요</option>
         ${Object.keys(foodDB).map(f=>`<option value="${f}">${f}</option>`).join("")}
     </select>
-
     <img id="img${i}" style="display:none">
-
     <p>먹은 양(g)</p>
     <input type="number" id="gram${i}" placeholder="예: 120">
 </div>
 `).join("");
 
+// 음식 이미지 표시
 function showImage(i){
     let food = document.getElementById("food"+i).value;
     let img = document.getElementById("img"+i);
@@ -108,7 +120,17 @@ function showImage(i){
     img.style.display = "block";
 }
 
-const std = {k:800, c:120, p:24, f:20, n:800};
+// 성별에 따른 기준 칼로리(노인 기준)
+const genderBase = {
+    male:  {k:2000, c:300, p:60, f:30, n:2000},
+    female:{k:1800, c:260, p:55, f:25, n:2000}
+};
+
+function getMealRatio(time){
+    if(time==="breakfast") return 0.3;
+    if(time==="lunch") return 0.4;
+    return 0.3; // dinner
+}
 
 function judge(v,s){
     let per = v/s*100;
@@ -117,7 +139,28 @@ function judge(v,s){
     return `<span class='good'>${per.toFixed(1)}% (적정)</span>`;
 }
 
+let lastResult = null;
+
 function calculateMeal(){
+    let gender = document.getElementById("gender").value;
+    let mealTime = document.getElementById("mealTime").value;
+
+    if(!gender || !mealTime){
+        alert("성별과 식사 시간을 먼저 선택하세요.");
+        return;
+    }
+
+    let ratio = getMealRatio(mealTime);
+    let base = genderBase[gender];
+
+    let std = {
+        k: base.k * ratio,
+        c: base.c * ratio,
+        p: base.p * ratio,
+        f: base.f * ratio,
+        n: base.n * ratio
+    };
+
     let total = {k:0,c:0,p:0,f:0,n:0};
 
     for(let i=0;i<foodNames.length;i++){
@@ -131,10 +174,10 @@ function calculateMeal(){
             total.p += d.p*g;
             total.f += d.f*g;
             total.n += d.n*g;
-
-            sendToSheet(food,g,d.k*g,d.c*g,d.p*g,d.f*g,d.n*g);
         }
     }
+
+    lastResult = {gender, mealTime, total, std};
 
     document.getElementById("totalResult").innerHTML = `
         <h2>전체 식단 결과</h2>
@@ -147,32 +190,71 @@ function calculateMeal(){
 }
 </script>
 
-
-<!-- ◆ 3. GOOGLE SHEET LINK -->
+<!-- ========================= -->
+<!-- 6) 저장하기 기능 -->
+<!-- ========================= -->
 <script>
-const SHEET_URL = "여기에_웹앱_URL_넣기";
+const SHEET_URL = "여기에_구글_웹앱_URL";
 
-function sendToSheet(food,gram,K,C,P,F,N){
-    if(!SHEET_URL.includes("https")) return;
+function saveResult(){
+    if(!lastResult){
+        alert("먼저 계산을 완료하세요.");
+        return;
+    }
 
-    fetch(SHEET_URL, {
-        method:"POST",
-        body: JSON.stringify({
-            음식:food,
-            양:gram,
-            칼로리:K,
-            탄수화물:C,
-            단백질:P,
-            지방:F,
-            나트륨:N,
-            시간:new Date().toLocaleString()
-        }),
+    let data = {
+        gender: lastResult.gender,
+        mealTime: lastResult.mealTime,
+        total: lastResult.total,
+        std: lastResult.std,
+        time: new Date().toLocaleString()
+    };
+
+    // LocalStorage 저장
+    let saved = JSON.parse(localStorage.getItem("mealHistory") || "[]");
+    saved.push(data);
+    localStorage.setItem("mealHistory", JSON.stringify(saved));
+
+    // Google Sheet 저장
+    if(SHEET_URL.includes("https")){
+        fetch(SHEET_URL, {
+            method:"POST",
+            body: JSON.stringify(data)
+        });
+    }
+
+    alert("저장되었습니다!");
+}
+
+function showSaved(){
+    let saved = JSON.parse(localStorage.getItem("mealHistory") || "[]");
+    if(saved.length===0){
+        alert("저장된 기록이 없습니다.");
+        return;
+    }
+
+    let html = "<h2>저장된 기록</h2>";
+    saved.forEach(r=>{
+        html += `
+        <div style="border:2px solid #ccc; padding:15px; margin:15px 0;">
+            <b>${r.time}</b><br>
+            성별: ${r.gender}<br>
+            식사: ${r.mealTime}<br>
+            칼로리: ${r.total.k.toFixed(1)} kcal<br>
+            단백질: ${r.total.p.toFixed(1)} g<br>
+            지방: ${r.total.f.toFixed(1)} g<br>
+            나트륨: ${r.total.n.toFixed(1)} mg<br>
+        </div>
+        `;
     });
+
+    document.getElementById("savedList").innerHTML = html;
 }
 </script>
 
-
-<!-- ◆ 4. PWA SERVICE WORKER REGISTER -->
+<!-- ========================= -->
+<!-- 7) PWA Service Worker -->
+<!-- ========================= -->
 <script>
 if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("service-worker.js");
