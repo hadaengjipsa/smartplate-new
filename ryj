@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>노인 스마트 식판</title>
 
+<!-- PWA manifest -->
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -58,6 +59,9 @@ const foodDB = {
 "흰쌀밥":  {img:"images/흰쌀밥.jpg", k:1.46,c:0.317,p:0.025,f:0.003,n:0.01},
 "잡곡밥":  {img:"images/잡곡밥.jpg", k:1.49,c:0.32,p:0.03,f:0.01,n:0.01},
 "보리밥":  {img:"images/보리밥.jpg", k:1.40,c:0.33,p:0.035,f:0.01,n:0.01},
+"닭죽":    {img:"images/닭죽.jpg", k:0.75,c:0.12,p:0.04,f:0.01,n:1.5},
+"흑미밥":  {img:"images/흑미밥.jpg", k:1.45,c:0.315,p:0.03,f:0.01,n:0.01},
+"귀리밥":  {img:"images/귀리밥.jpg", k:1.50,c:0.30,p:0.04,f:0.02,n:0.01},
 
 "들깨미역국": {img:"images/들깨미역국.jpg", k:0.21,c:0.01,p:0.01,f:0.11,n:2},
 "콩나물국":   {img:"images/콩나물국.jpg", k:0.16,c:0.05,p:0.03,f:0.005,n:2},
@@ -80,7 +84,6 @@ const foodDB = {
 const foodNames = ["밥", "국", "반찬1", "반찬2", "반찬3", "반찬4"];
 let foodsBox = document.getElementById("foods");
 
-// ▼ UI 생성
 foodsBox.innerHTML = foodNames.map((label, i)=>`
 <div class="food-block">
     <h2>${label}</h2>
@@ -97,18 +100,14 @@ foodsBox.innerHTML = foodNames.map((label, i)=>`
 </div>
 `).join("");
 
-// ▼ 음식 이미지 표시
 function showImage(i){
     let food = document.getElementById("food"+i).value;
     let img = document.getElementById("img"+i);
-
     if(!food){ img.style.display="none"; return; }
-
     img.src = foodDB[food].img;
     img.style.display = "block";
 }
 
-// ▼ 권장량(점심 기준)
 const std = {k:800, c:120, p:24, f:20, n:800};
 
 function judge(v,s){
@@ -118,7 +117,6 @@ function judge(v,s){
     return `<span class='good'>${per.toFixed(1)}% (적정)</span>`;
 }
 
-// ▼ 전체 계산
 function calculateMeal(){
     let total = {k:0,c:0,p:0,f:0,n:0};
 
@@ -152,8 +150,7 @@ function calculateMeal(){
 
 <!-- ◆ 3. GOOGLE SHEET LINK -->
 <script>
-// 구글 WebApp URL 넣기
-const SHEET_URL = "여기에_구글시트_웹앱_URL넣기";
+const SHEET_URL = "여기에_웹앱_URL_넣기";
 
 function sendToSheet(food,gram,K,C,P,F,N){
     if(!SHEET_URL.includes("https")) return;
@@ -173,6 +170,7 @@ function sendToSheet(food,gram,K,C,P,F,N){
     });
 }
 </script>
+
 
 <!-- ◆ 4. PWA SERVICE WORKER REGISTER -->
 <script>
